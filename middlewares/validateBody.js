@@ -2,6 +2,7 @@
 
 const validateBody = (schema) => {
   const func = (req, res, next) => {
+    console.log(req);
     const { error } = schema.validate(req.body, {
       abortEarly: false,
       allowUnknown: true,
