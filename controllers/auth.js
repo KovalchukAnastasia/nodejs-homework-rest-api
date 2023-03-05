@@ -8,8 +8,8 @@ const { SECRET_KEY } = process.env;
 
 const { ctrlWrapper, HttpError } = require("../helpers");
 
+/* Registration */
 const register = async (req, res) => {
-  //   console.log(req.body);
   const { email, password } = req.body;
   const user = await User.findOne({ email });
 
@@ -27,6 +27,7 @@ const register = async (req, res) => {
   });
 };
 
+/* Login */
 const login = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email });
@@ -51,6 +52,7 @@ const login = async (req, res) => {
   });
 };
 
+/* Current */
 const getCurrent = async (req, res) => {
   const { email, subscription } = req.user;
 
@@ -60,6 +62,7 @@ const getCurrent = async (req, res) => {
   });
 };
 
+/* Logout */
 const logout = async (req, res) => {
   const { _id } = req.user;
   await User.findByIdAndUpdate(_id, { token: "" });
@@ -69,6 +72,7 @@ const logout = async (req, res) => {
   });
 };
 
+/* Subscription */
 const updateSubscription = async (req, res) => {
   const { _id } = req.user;
   const { subscription } = req.body;
