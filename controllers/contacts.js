@@ -15,7 +15,8 @@ const getAll = async (req, res) => {
 
 const getById = async (req, res) => {
   const { contactId } = req.params;
-  const contact = await Contact.findById(contactId);
+  const { _id: owner } = req.user;
+  const contact = await Contact.findById(contactId, owner);
   if (!contact) {
     return res.status(404).json({ message: "Not found" });
   }
@@ -25,17 +26,25 @@ const getById = async (req, res) => {
 const add = async (req, res) => {
   const { _id: owner } = req.user;
   const newContact = await Contact.create({ ...req.body, owner });
+
   res.status(201).json({ data: newContact });
 };
 
 const updateById = async (req, res) => {
   const { contactId } = req.params;
+  const { _id: owner } = req.user;
+
   if (!req.body) {
     return res.status(400).json({ message: "missing fields" });
   }
-  const contact = await Contact.findByIdAndUpdate(contactId, req.body, {
-    new: true,
-  });
+  const contact = await Contact.findByIdAndUpdate(
+    contactId,
+    req.body,
+    {
+      new: true,
+    },
+    owner
+  );
   if (!contact) {
     return res.status(404).json({ message: "Not found" });
   }
@@ -44,7 +53,8 @@ const updateById = async (req, res) => {
 
 const deleteById = async (req, res) => {
   const { contactId } = req.params;
-  const contact = await Contact.findByIdAndRemove(contactId);
+  const { _id: owner } = req.user;
+  const contact = await Contact.findByIdAndRemove(contactId, owner);
   if (!contact) {
     return res.status(404).json({ message: "Not found" });
   }
@@ -55,9 +65,15 @@ const deleteById = async (req, res) => {
 
 const updateStatusContact = async (req, res) => {
   const { contactId } = req.params;
-  const contact = await Contact.findByIdAndUpdate(contactId, req.body, {
-    new: true,
-  });
+  const { _id: owner } = req.user;
+  const contact = await Contact.findByIdAndUpdate(
+    contactId,
+    req.body,
+    {
+      new: true,
+    },
+    owner
+  );
   if (!contact) {
     return res.status(404).json({ message: "Not found" });
   }
