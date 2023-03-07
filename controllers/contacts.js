@@ -1,15 +1,22 @@
-const { Contact } = require("../models/contacts/contact");
+const { Contact } = require("../models/contact");
 
 const { ctrlWrapper } = require("../helpers");
 
 const getAll = async (req, res) => {
-  const allContacts = await Contact.find({}, "-createdAt -updatedAt");
+  const { _id: owner } = req.user;
+  const { page = 1, limit = 20 } = req.query;
+  const skip = (page - 1) * limit;
+  const allContacts = await Contact.find({ owner }, "-createdAt -updatedAt", {
+    skip,
+    limit,
+  }).populate("owner", "email");
   res.json(allContacts);
 };
 
 const getById = async (req, res) => {
   const { contactId } = req.params;
-  const contact = await Contact.findById(contactId);
+  const { _id: owner } = req.user;
+  const contact = await Contact.findOne(contactId, owner);
   if (!contact) {
     return res.status(404).json({ message: "Not found" });
   }
@@ -17,18 +24,27 @@ const getById = async (req, res) => {
 };
 
 const add = async (req, res) => {
-  const newContact = await Contact.create(req.body);
+  const { _id: owner } = req.user;
+  const newContact = await Contact.create({ ...req.body, owner });
+
   res.status(201).json({ data: newContact });
 };
 
 const updateById = async (req, res) => {
   const { contactId } = req.params;
+  const { _id: owner } = req.user;
+
   if (!req.body) {
     return res.status(400).json({ message: "missing fields" });
   }
-  const contact = await Contact.findByIdAndUpdate(contactId, req.body, {
-    new: true,
-  });
+  const contact = await Contact.findOneAndUpdate(
+    contactId,
+    req.body,
+    {
+      new: true,
+    },
+    owner
+  );
   if (!contact) {
     return res.status(404).json({ message: "Not found" });
   }
@@ -37,7 +53,8 @@ const updateById = async (req, res) => {
 
 const deleteById = async (req, res) => {
   const { contactId } = req.params;
-  const contact = await Contact.findByIdAndRemove(contactId);
+  const { _id: owner } = req.user;
+  const contact = await Contact.findOneAndDelete(contactId, owner);
   if (!contact) {
     return res.status(404).json({ message: "Not found" });
   }
@@ -48,9 +65,15 @@ const deleteById = async (req, res) => {
 
 const updateStatusContact = async (req, res) => {
   const { contactId } = req.params;
-  const contact = await Contact.findByIdAndUpdate(contactId, req.body, {
-    new: true,
-  });
+  const { _id: owner } = req.user;
+  const contact = await Contact.findOneAndUpdate(
+    contactId,
+    req.body,
+    {
+      new: true,
+    },
+    owner
+  );
   if (!contact) {
     return res.status(404).json({ message: "Not found" });
   }
