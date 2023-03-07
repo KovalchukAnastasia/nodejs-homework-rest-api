@@ -37,7 +37,7 @@ const updateById = async (req, res) => {
   if (!req.body) {
     return res.status(400).json({ message: "missing fields" });
   }
-  const contact = await Contact.findByIdAndUpdate(
+  const contact = await Contact.findOneAndUpdate(
     contactId,
     req.body,
     {
@@ -54,7 +54,7 @@ const updateById = async (req, res) => {
 const deleteById = async (req, res) => {
   const { contactId } = req.params;
   const { _id: owner } = req.user;
-  const contact = await Contact.findByIdAndRemove(contactId, owner);
+  const contact = await Contact.findOneAndDelete(contactId, owner);
   if (!contact) {
     return res.status(404).json({ message: "Not found" });
   }
@@ -66,7 +66,7 @@ const deleteById = async (req, res) => {
 const updateStatusContact = async (req, res) => {
   const { contactId } = req.params;
   const { _id: owner } = req.user;
-  const contact = await Contact.findByIdAndUpdate(
+  const contact = await Contact.findOneAndUpdate(
     contactId,
     req.body,
     {
